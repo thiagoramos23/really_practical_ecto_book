@@ -88,7 +88,7 @@ SELECT name, color FROM products
 
 So, we have a small difference here, because we don't have any schema, `Ecto` can't possibly know what would be 
 the data to return, so we need to tell it the name of the columns we should return in the query. Another thing
-to be aware of is that we can use other data structures in the `select` clause. If you are anything like me
+to be aware of is that we can use other data structures in the `select` clause. If you aren't anything like me
 and you paid attention to every piece of code I showed to you so far you had noticed that we are using a `List`
 data structure as the return value of the `select` clause. Another example using a `Map` would be:
 
