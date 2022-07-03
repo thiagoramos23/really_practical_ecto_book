@@ -165,4 +165,124 @@ succint and to the point. So let's go.
 
 ## Where clause
 
-# TODO: Examples of where clause
+We often want to get data from one of more tables that contain a lot of rows, I mean, A LOT. It's not viable nor 
+feasable to get all the data from a table everytime. Continuing with our `products` table, let's add some new fields
+to it, don't worry about how to add fields to a table or even how to create tables and schemas for now, we will learn
+all about this in the other chapters. For now, let's suppose our `Product` schema have these fields:
+
+```elixir
+defmodule Product do
+  use Ecto.Schema
+  
+  schema "products" do
+    field :name, :string
+    field :color, :string
+    field :type, :string
+    field :brand, :string
+    field :manufactured_at, :datetime
+  end
+end
+```
+
+Let's create some data, you can enter the elixir console with `iex -S mix` inside the folder of the project and then you
+can copy and paste the code below to create some shoes in your database:
+
+```elixir
+colors = ["black", "orange", "green", "white"]
+product_list = [{"Nike 1", "Nike", "shoes"}, {"Nike Air", "Nike", "shoes"}, {"Nike Jordan", "Nike", "shoes"}, 
+              {"Adidas Run", "Adidas", "shoes"}, {"Olympikus Running", "Olympikus", "shoes"}, 
+              {"Under Armour Charged Fleet", "Under Armour", "shoes"}, {"Adidas Life Racer", "Adidas", "shoes"}, 
+              {"Mizuno Wave", "Mizuno", "shoes"}, {"Mizuno Prime 9", "Mizuno", "shoes"},
+              {"Michael Jordan Shorts", "Nike", "sportswear"}, {"Mike Tyson Gloves", "Adidas", "sportswear"}]
+
+Enum.each(product_list, fn {name, brand, type} ->
+  product = %Product{name: name, color: Enum.random(colors), type: type, brand: brand}
+  Repo.insert(product)
+end)
+```
+
+Now, let's say your new manager is asking you to send him a report showing all the shoes the company sells from Nike.
+What do you do?
+
+The answer to that is the `where clause`. Let's see how this how to achieve this with ecto. There are two ways to do this,
+the first one is using functions:
+
+```elixir
+Product
+|> Ecto.Query.where(brand: "Nike")
+|> Ecto.Query.where(type: "shoes")
+|> Repo.all
+```
+
+If you don't want to repeat the `Ecto.Query` everytime you can use the `import`.
+
+```elixir
+import Ecto.Query
+Product
+|> where(brand: "Nike")
+|> where(type: "shoes")
+|> Repo.all
+```
+
+This is exactly the same and now you don't need to write `Ecto.Query` for every `where` clause you need to write.
+The other way of getting the same data is using the `Ecto.Query` to build the query you want:
+
+```elixir
+import Ecto.Query
+query = from p in Product, 
+        where: p.brand == "Nike",
+        where: p.type == "shoes"
+        
+Repo.all(query)
+```
+
+You can also do the same using the more functional form:
+
+```elixir
+import Ecto.Query
+
+Product
+|> where([p], p.brand == "Nike" and p.type == "shoes")
+|> Repo.all
+```
+```sql
+SELECT * FROM products WHERE products.brand = 'Nike' AND products.type = 'shoes'
+```
+
+Here I opted to use just one `where` and use the `and` to build the query that we need. One thing to keep in mind when using 
+more than one `where` clause is that they all translate to `and` in the end. Next we will see how to use the the `where` clause 
+with the `or`.
+
+Now your manager wants to know all the nike shoes we have but also want to know all the other types of products we have
+that are not shoes.
+
+```elixir
+import Ecto.Query
+
+Product
+|> where([p], (p.brand == "Nike" and p.type == "shoes") or (p.type != "shoes"))
+|> Repo.all
+```
+```sql
+SELECT * 
+FROM products 
+WHERE (products.brand = 'Nike' AND products.type = 'shoes') 
+OR products.type <> 'shoes'
+```
+
+We can also use the `or_where` and in this case it would work the same way. Just keep in mind that the `or_where` is used 
+when we want to concatenate more than on `where` function using the `or` instead of the `and` which is the default. Here is
+the [documentation](https://hexdocs.pm/ecto/Ecto.Query.html#or_where/3) about `or_where` that explains the usage. Bottom line the query above could be rewrited like this:
+
+```elixir
+import Ecto.Query
+
+Product
+|> where([p], p.brand == "Nike" and p.type == "shoes")
+|> or_where([p], p.type != "shoes")
+|> Repo.all
+```
+
+The result is the same and the SQL query is also the same. One thing to keep in mind is that the `where clause` can get 
+really complex, specially when we are composing queries but I hope I can show you some techniques to make your life easier.
+

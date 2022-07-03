@@ -1,15 +1,28 @@
 ## TODO
 
+- [ ] How to write where clauses
+- [ ] How to use order by
+- [ ] How to get only one result
+- [ ] Ecto.Enum, how to use in queries
+- [ ] How to paginate data
 - [ ] What are the Ecto pieces
   - [ ] Repo
   - [ ] Schema
   - [ ] Query
 - [ ] How to do joins without Schema
 - [ ] How to do joins with schema
+- [ ] How to get only one item in the result
 - [ ] How to do subqueries
 - [ ] Aggregations
+- [ ] How to compose queries
+- [ ] How to use fragments
+- [ ] How to use window functions with Ecto
 - [ ] How to save with associations
+- [ ] Ecto.Enum how to save when we have fields with it.
 - [ ] Best practices for saving with associations
 - [ ] insert_all & update_all
 - [ ] tips and tricks?
 - [ ] Why people prefer to set the id of the foreign key and save instead of saving the association
+- [ ] How to deal with date in with Ecto
+- [ ] Advanced queries
+  - [ ] Advannced where clauses
