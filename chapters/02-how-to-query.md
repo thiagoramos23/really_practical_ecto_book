@@ -286,3 +286,91 @@ Product
 The result is the same and the SQL query is also the same. One thing to keep in mind is that the `where clause` can get 
 really complex, specially when we are composing queries but I hope I can show you some techniques to make your life easier.
 
+Ok, we did those `where` clauses but we are always using strings as the values. What if I want to a query to return products
+of a particular brand and and particular type but I don't want to hardcode the name of the brand neither the type in the 
+query.
+
+### Meet the Pin Operator
+
+So, although Elixir is an immutable language, variables in Elixir can be rebound. I can perfectly do this:
+```elixir
+x = 1
+x = 2
+
+IO.puts(x) 
+=> 2
+```
+
+As you can see I can change the value of a variable even though I had already declared the same variable before. 
+This happens because Elixir does not forbids you to set a new value to a variable already declared. However, you can
+change this behavior by using the `^` pin operator. What this does? The pin operator forbids a variable to be rebound, 
+in other words it does not let you set a new value to a variable after this variable is declared.
+Remember that in elixir the `=` sign does not mean an assigment, it's a pattern matching. So:
+```elixir
+x = 1
+```
+This means that you are pattern matching x with 1. Since x didn't exist before it assumes the value of 1.
+What elixir also allows is the rebound of a variable so, even though the x is 1 when you do this:
+```elixir
+x = 2
+```
+what elixir is doing is rebounding the value of x. So, although it's still a pattern matching it's now setting the 
+x value to 2.
+But what about if you have to really check the pattern matching, to check if x is 2? Hence the pin operator. With 
+the pin operator you can do this:
+```elixir
+x = 2 
+^x = 2 # This not fail
+^x = 3 # This will raise: ** (MatchError) no match of right hand side value: 2
+```
+The third line in this code will raise a `MatchError` because it verified that the x value is not 3, therefore we have a
+pattern match error.
+
+You may be asking. Ok, but how this is usable or viable to have? Well, imagine you have a list and you want to get the values
+in the list to respective variables, but you also want to check that the second item in the list is an Apple, if you do this:
+```elixir
+fruit = "Orange"
+list = [10, "Apple", 11]
+[ten, fruit, eleven] = list
+```
+you will be setting the value 10 to the `ten` variable, the value `"Apple"` to the `fruit` varible, and the value 11 to the `eleven`
+variable because elixir will rebound the value of the variable fruit.
+To set the values to the variables but also check the pattern match for the `fruit` you need to use the `pin operator` like this:
+```elixir
+fruit = "Orange"
+list = [10, "Apple", 11]
+[ten, ^fruit, eleven] = list
+=> ** (MatchError) no match of right hand side value: [10, "Apple", 11]
+```
+This will raise an error because elixir now expects that the second item in the list to have the same value as the variable
+`fruit`. This is actually a powerfull tool when you want to pattern match against variables and this is what Ecto uses when 
+you need to use variables in `where` clauses.
+
+Now that you know how the pin operator works we can understand how to pass a variable to the `where` clause. So, let's say
+I want a function where I can pass a brand and a type and it will return for me all the products for that brand and that type. 
+How can I do this? Using the pin operator.
+```elixir
+import Ecto.Query
+
+def products_by_brand_and_type(brand, type) do
+  Product
+  |> where([p], p.brand == ^brand and p.type == ^type)
+  |> Repo.all
+end
+```
+
+by doing this you will be able to pass any brand and any type and Ecto will take care of getting the value of the variable 
+and set that in the query. Keep in mind, all variables must be set with the `pin operator` 
+
+So, now that you know how to use variables in an Ecto query it's time to find out how Ecto protects you against the oldest
+hacking in the Hack Book.
+
+### The very bad SQL Injection
+
+So, you probably already heard about SQL Injection but do you know how it's done? I will explain to you and I also will 
+explain how Ecto make it easy to protect you against all of this.
+
+# TODO: Example of SQL injection.
+# TODO: Explain how ecto transforms, when generating the SQL query transforms any variable in the Ecto Query to a 
+#       parameterized value in the SQL query.
+
