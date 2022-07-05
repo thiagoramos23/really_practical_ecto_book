@@ -370,7 +370,8 @@ hacking in the Hack Book.
 So, you probably already heard about SQL Injection but do you know how it's done? I will explain to you and I also will 
 explain how Ecto make it easy to protect you against all of this.
 
-# TODO: Example of SQL injection.
-# TODO: Explain how ecto transforms, when generating the SQL query transforms any variable in the Ecto Query to a 
-#       parameterized value in the SQL query.
+TODO: Example of SQL injection.
+
+TODO: Explain how ecto transforms, when generating the SQL query transforms any variable in the Ecto Query to a 
+      [parameterized](parameterized) value in the SQL query.
 
