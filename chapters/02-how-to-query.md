@@ -416,4 +416,5 @@ So, as you can see Ecto does not let you use a query param without use the pin o
 ##### Note
 Ecto supports the use of raw SQL queries but I don't advise to do this because it opens a port to some SQL Injection. Of course, each case is different and if you know for sure that the data being passed to the query is always validated by the code you wrote you can sleep in peace. But keep this mind!
 
+## How to Order by
 

@@ -1,14 +1,17 @@
 ## TODO
 
-- [ ] How to write where clauses
-- [ ] How to use order by
-- [ ] How to get only one result
-- [ ] Ecto.Enum, how to use in queries
-- [ ] How to paginate data
+#### This is for chapter 01
 - [ ] What are the Ecto pieces
   - [ ] Repo
   - [ ] Schema
   - [ ] Query
+
+#### This is for chapter 02
+- [x] How to write where clauses
+- [ ] How to use order by
+- [ ] How to get only one result
+- [ ] Ecto.Enum, how to use in queries
+- [ ] How to paginate data
 - [ ] How to do joins without Schema
 - [ ] How to do joins with schema
 - [ ] How to get only one item in the result
@@ -26,3 +29,7 @@
 - [ ] How to deal with date in with Ecto
 - [ ] Advanced queries
   - [ ] Advannced where clauses
+
+- [ ] Muti Tenancy and how to make it work
+	- [ ] with Queries
+	- [ ] with foreign keys
