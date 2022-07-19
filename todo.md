@@ -8,8 +8,8 @@
 
 #### This is for chapter 02
 - [x] How to write where clauses
-- [ ] How to use order by
-- [ ] How to get only one result
+- [x] How to use order by
+- [x] How to get only one result
 - [ ] Ecto.Enum, how to use in queries
 - [ ] How to paginate data
 - [ ] How to do joins without Schema

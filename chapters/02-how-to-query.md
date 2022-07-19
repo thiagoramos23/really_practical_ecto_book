@@ -406,7 +406,8 @@ Let's get the same query and write using Ecto
 ```elixir
 import Ecto.Query
 def get_user_by_username_and_password(username, password) do
-	query = from u in Users, where: u.username = ^username and u.password = ^password
+	query = from u in Users, where: u.username = ^username and
+			u.password = ^password
 	Repo.one(query)
 end
 ```
@@ -414,7 +415,143 @@ Don't bother about the `Repo.one` we will talk about it later, for now just keep
 So, as you can see Ecto does not let you use a query param without use the pin operator, but the way Ecto requires you to write the query forces you to set the params in a way that Ecto will be able to parse the query with placeholders and then it will add the values in the params to execute the query. The best thing here is that it does all of that behind the scene. 
 
 ##### Note
-Ecto supports the use of raw SQL queries but I don't advise to do this because it opens a port to some SQL Injection. Of course, each case is different and if you know for sure that the data being passed to the query is always validated by the code you wrote you can sleep in peace. But keep this mind!
+> Ecto supports the use of raw SQL queries but I don't advise to do this because it opens a port to some SQL Injection. Of course, each case is different and if you know for sure that the data being passed to the query is always validated by the code you wrote you can sleep in peace. But keep this mind!
 
 ## How to Order by
 
+First of all why we need to order things. Maybe you are a maniac for ordering things, maybe it's because you want to put some order into this world, maybe it's because you are tired to live in a world full of disorder. :) 
+
+Well, in a more restrict way we do want to order our queries because otherwise you can't actually rely on the order of the results because this is highly dependent on the database and how the database organize indexes and cache.
+
+So, it's always a good idea to explicitly order your queries, but how can we do this using Ecto? 
+
+There are some ways. First I will show you the one that is closer to the SQL writing using the keywords in Ecto Query:
+```elixir
+import Ecto.Query
+
+query = from p in Product, order_by: [asc: p.name]
+Repo.all(query)
+```
+```sql
+SELECT * FROM products ORDER BY name ASC;
+```
+
+The other one could be accomplish using the Expressions:
+```elixir
+import Ecto.Query
+
+Product 
+|> order_by(asc: :name)
+|> Repo.all()
+```
+
+The order by can be used using the `asc` or `desc` where the `asc` will order your query in an ascendent order and the `desc` in the descendent order. What does that mean?
+
+It means that if you have a list or users with names like these:
+```text
+Anna
+Claire
+Belle
+Apple
+Paul
+John
+```
+
+If you order them by `asc` you will get an ascendent order using the alphabet. Which means the query will first order using the first letter and if it finds more than one record with the same letter it will look at the second letter and so on and so forth. 
+
+This list in `asc` order would be like:
+```
+Anna
+Apple
+Belle
+Claire
+John 
+Paul
+```
+
+And it will be the inverse if you order them by `desc`.
+
+How do we order for more than one column?
+
+```elixir
+import Ecto.Query
+query = from p in Product, order_by: [asc: p.name, desc: p.color]
+Repo.all(query)
+```
+
+```sql
+SELECT * FROM products ORDER BY name ASC, color DESC;
+```
+
+Using the expressions would be:
+
+```elixir
+Product
+|> order_by([asc: :name, desc: :color])
+|> Repo.all()
+```
+
+Or:
+
+```elixir
+Product
+|> order_by([p], [asc: p.name, desc: p.color])
+|> Repo.all()
+```
+
+Or:
+
+```elixir
+Product
+|> order_by(asc: :name)
+|> order_by(desc: :color)
+```
+
+So, there are a bunch ways and permutations to use this. Let's continue, in this chapter you will also see how to create a module so we can build queries with functions and use the way real professionals use.
+
+## How to Get only one Result
+
+So, we already saw a little bit how to get only one result using the `Repo.one` function. But there is a caveat. 
+
+You need to keep in mind when you are using this function that you need to be sure the query you are using is only returning one result or nothing. Because if it gets more than one result you will get an error. So, this is something you need to be aware of. Usually, in the real world you will see a code something like this:
+
+```elixir
+def get_user(%{email: email} = _user) do
+	query = from u in User, where: u.email = ^email
+	case Repo.one(query) do
+	  nil -> {:error, :not_found}
+	  user -> {:ok, user}
+	end
+end 
+```
+
+This code is dealing with the fact that the database could not have any user and you want to return an error tuple instead of return nil. Of course you can always return nil if you want to but in this case we are leveraging the fact that returning tuples as `{:error, THE_ERROR_MESSAGE}` or `{:ok, THE_RESULT}` is an accepted idiom for elixir programs. But hey, the function is yours you can return whatever you want to.
+
+We can also use the `Repo.get_by` which will do the same but you can use the key that you want to search for.
+
+```elixir
+def get_user(%{email: email} = _user) do
+	case Repo.get_by(User, email: ^email) do
+	  nil -> {:error, :not_found}
+	  user -> {:ok, user}
+	end
+end 
+```
+
+Using `get_by` you can also use with more than one key:
+
+```elixir
+	Repo.get_by(User, email: ^email, password: ^password)
+```
+
+And this will try to get the user with the email and the password .
+
+And if you know the value of the primary key of the resource you want to get you can do:
+
+```elixir
+Repo.get(User, 10)
+```
+
+This will also return a nil or, in this case, the user.
+
+So, this is how you get just one result instead of many.
