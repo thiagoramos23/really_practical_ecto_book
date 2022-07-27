@@ -14,7 +14,6 @@
 - [ ] How to paginate data
 - [ ] How to do joins without Schema
 - [ ] How to do joins with schema
-- [ ] How to get only one item in the result
 - [ ] How to do subqueries
 - [ ] Aggregations
 - [ ] How to compose queries
@@ -33,3 +32,5 @@
 - [ ] Muti Tenancy and how to make it work
 	- [ ] with Queries
 	- [ ] with foreign keys
+
+- [ ] Build a Simple Crud Phoenix Application

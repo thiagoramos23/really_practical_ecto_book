@@ -555,3 +555,104 @@ Repo.get(User, 10)
 This will also return a nil or, in this case, the user.
 
 So, this is how you get just one result instead of many.
+
+## How to use Enums in the Query
+
+First let's understand what the Ecto.Enum does. So, Ecto.Enum is responsible to convert an atom value to a string so we can store in the database and do the conversion from string to atom  when we want to use in our application. But it does not only that. With Ecto.Enum you can have a field that accepts one value or a list of values and this is done easily. 
+
+Also, Ecto.Enum has some great integrations with Phoenix Forms as we will see later in the book when we build a simple Phoenix Application.
+
+Let's see how it is a schema with an Ecto.Enum. Let's remember the products schema and change the field type to use the Ecto.Enum.
+
+```elixir
+defmodule Product do
+  use Ecto.Schema
+  
+  schema "products" do
+    field :name, :string
+    field :color, :string
+    field :type, Ecto.Enum, values: [:shoes, :shirt, :jeans, :sports]
+    field :brand, :string
+    field :manufactured_at, :datetime
+  end
+end
+```
+
+And the migration(don't worry we will talk about migrations in details in other chapters) to add this field would be something like that:
+```elixir
+def change do
+  alter table(:products) do
+    field :type, :string
+  end
+end
+```
+
+What will happen when we insert some data into the database? What will happen is that the values that are represented as atoms (:shoes, :shirt, :jeans, :sports) will be inserted in the database as strings. 
+
+So, if you have a Phoenix form you can also do:
+
+```elixir
+<%= select f, :type, Ecto.Enum.values(Product, :type) %>
+```
+
+And this will list all the types that you can select in the dropdown. 
+You can also want to store more than one value in the field. Let's suppose you have a product like a Nike Jordan shoe which is both a shoe and it could also be in the sports type. What do you do?
+
+Well, it's super simple. You would change the migration to be:
+```elixir
+def change do
+  alter table(:products) do
+    field :type, {:array, :string}, default: []
+  end
+end
+```
+
+And now the Product schema would be like this:
+
+```elixir
+defmodule Product do
+  use Ecto.Schema
+  
+  schema "products" do
+    field :name, :string
+    field :color, :string
+    field :type, {:array, Ecto.Enum}, values: [:shoes, :shirt, :jeans, :sports]
+    field :brand, :string
+    field :manufactured_at, :datetime
+  end
+end
+```
+
+And now in the form you would just change to a multi select field:
+
+```elixir
+<%= multiple_select f, :type, Ecto.Enum.values(Product, :type) %>
+```
+
+And now your data will be inserted as an array in the field for the types.
+
+So, as you can see it's valuable to use the Ecto.Enum instead of just simple strings. But now we need to get this data from the database. So, how can we do it?
+
+// TODO: How to query with Ecto.Enum
+
+- We can specify the acceptable values
+- Has some nice helpers to be used in conjunction with Forms.
+- We can also insert as an {:array, :string}
+- the field would be {:array, Ecto.Enum}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
