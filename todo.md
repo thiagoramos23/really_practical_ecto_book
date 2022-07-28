@@ -10,7 +10,7 @@
 - [x] How to write where clauses
 - [x] How to use order by
 - [x] How to get only one result
-- [ ] Ecto.Enum, how to use in queries
+- [x] Ecto.Enum, how to use in queries
 - [ ] How to paginate data
 - [ ] How to do joins without Schema
 - [ ] How to do joins with schema
@@ -20,7 +20,6 @@
 - [ ] How to use fragments
 - [ ] How to use window functions with Ecto
 - [ ] How to save with associations
-- [ ] Ecto.Enum how to save when we have fields with it.
 - [ ] Best practices for saving with associations
 - [ ] insert_all & update_all
 - [ ] tips and tricks?

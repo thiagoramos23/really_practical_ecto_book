@@ -631,28 +631,51 @@ And now in the form you would just change to a multi select field:
 
 And now your data will be inserted as an array in the field for the types.
 
-So, as you can see it's valuable to use the Ecto.Enum instead of just simple strings. But now we need to get this data from the database. So, how can we do it?
+As you can see it's valuable to use the Ecto.Enum instead of simple strings. But now we need to get this data from the database. How can we do it?
 
-// TODO: How to query with Ecto.Enum
+The good news is that is very simple get the data when you have an Ecto.Enum in the schema. Just deal with the enum as it was a normal string field.
 
-- We can specify the acceptable values
-- Has some nice helpers to be used in conjunction with Forms.
-- We can also insert as an {:array, :string}
-- the field would be {:array, Ecto.Enum}
+```elixir
+import Ecto.Query
 
+query = from p in Product, select: %{type: p.type}
+Repo.all(query)
+```
 
+```SQL
+SELECT type FROM products;
+```
 
+And if the field is an array of strings like the ones in the multi select the same query as above can be applied but the result will an array with all the values corresponding to the atoms. Suppose we inserted one product with the `types = ["shoes", "sports"]`
 
+```elixir
+import Ecto.Query
+query = from p in Product, select: %{type: p.type}
+Repo.all(query)
+```
 
+The result in this case will be:
 
+```elixir
+%{type: [:shoes, :sports]}
+```
 
+As you can see Ecto.Enum is an excellent approach when you want to have a small set of possible values and you want to make sure you don't end up with weird values in your database. It's also a good choice when you want to integrate faster and easier with front end by using phoenix forms. 
+It's not required for you to use and it is have less power right in the box if you compare with Java enums but it is a great addition to you belt and it is something every elixir developer uses.
 
+## How to paginate your queries
 
+We are now heading to more advanced subjects and from now things will start to get serious here. 
+Every once and while you will need to list a set of data and paginate it. (I am lying, every time you will need to do this)
 
+Paginate data is a common required and because of that a lot of languages have frameworks dedicated to do just that. For those of you who never did something related it could seem complicated but in the reality is very simple. 
 
+In this section we will learn about how to paginate the data in the query level. In another chapter we will learn how to create a pagination component using Phoenix and integrate that with the code we will create now.
 
+When we talk about pagination we need to understand two concepts in SQL:
+- offset
+- limit
 
+// TODO: Explain offset and limit
 
-
-
-
+ 
