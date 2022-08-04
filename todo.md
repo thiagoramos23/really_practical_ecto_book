@@ -14,11 +14,14 @@
 - [ ] How to paginate data
 - [ ] How to do joins without Schema
 - [ ] How to do joins with schema
+- [ ] How to use preloads
 - [ ] How to do subqueries
 - [ ] Aggregations
 - [ ] How to compose queries
 - [ ] How to use fragments
 - [ ] How to use window functions with Ecto
+
+## This is for chapter 3
 - [ ] How to save with associations
 - [ ] Best practices for saving with associations
 - [ ] insert_all & update_all
@@ -33,3 +36,4 @@
 	- [ ] with foreign keys
 
 - [ ] Build a Simple Crud Phoenix Application
+	- [ ] Add pagination component to it

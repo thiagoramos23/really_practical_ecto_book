@@ -40,9 +40,9 @@ Repo.all(query)
 SELECT * FROM products;
 ```
 
-This will get the same results. So you maybe asking yourself, well, why this people insist in having multiple ways of doing the same thing? I will tell you next. 
+This query will get the same results. So you may be asking yourself, why do these people insist on having multiple ways of doing the same thing? I will tell you next. 
 
-I've got say that I thought the same thing but there is a pretty good explanation for that and in fact the first example without `Ecto.Query` is just a kind of syntactic sugar for you so you don't need to write the query.
+I've got to say that I thought the same thing, but there is a pretty good explanation for that and in fact the first example without `Ecto.Query` is just a kind of syntactic sugar for you so you don't need to write the query.
 Ecto is a very powerful framework and you can, pretty much, do all the queries that you need to do, even the hard ones, without ever need to write the SQL queries for it, just using the `Ecto.Query` code.
 
 ## Getting data without schema
@@ -666,7 +666,7 @@ It's not required for you to use and it is have less power right in the box if y
 ## How to paginate your queries
 
 We are now heading to more advanced subjects and from now things will start to get serious here. 
-Every once and while you will need to list a set of data and paginate it. (I am lying, every time you will need to do this)
+Every once and while you will need to list a set of data and paginate it. (I am lying, you will need to do this almost every time)
 
 Paginate data is a common required and because of that a lot of languages have frameworks dedicated to do just that. For those of you who never did something related it could seem complicated but in the reality is very simple. 
 
@@ -676,6 +676,47 @@ When we talk about pagination we need to understand two concepts in SQL:
 - offset
 - limit
 
-// TODO: Explain offset and limit
+An offset is the amount you need to skip before starting counting again. 
+Imagine you have a rule and this rule has numbers from 0 to 100. If you need to measure a table what you would do is to start from the left of the table, stop when the rule ends, mark that spot, and place the beginning of the rule at the spot you just marked and start measure again. 
+By the time you start to measure for the second time you will be offsetting the whole size of the rule because you already measure at the first time. So, the second time you would start not from 0 but from 100. This is a very poor example of an offset. 
+In the SQL world an offset specifies the number of rows to skip before start to return the data in the query. 
+But, if we aim to paginate data we should not return all the data in one SQL call. We return the data til a certain point instead. And we do this by using the `limit`. 
+In other words, if we have 100 products in our products table and we want to get the second page considering 10 items per page we would set the offset to 10 and the limit to 10.
+If we want to get the third page we would set the offset to 20 and the limit would continue to be 10. But if we want to paginate 50 items at time, to get the first page the offset would be 0 and the limit would 50 and in the second page the offset would be 50 and the limit would still be 50.
 
- 
+As you can see, to get the offset it is a matter of multiplying the limit by the page - 1.
+
+Let's see some examples:
+
+```elixir
+import Ecto.Query
+# Get the first page from a pagination of 10 items.
+page = 1
+limit = 10
+offset = limit * (page - 1)
+query = from p in Product, offset: ^offset, limit: ^limit
+Repo.all(query)
+```
+
+```SQL
+SELECT * FROM products OFFSET 0 LIMIT 10;
+```
+
+And there you go! Now you have a paginated query. But let's not forget one thing. When we paginate data we often also want to get the total number of rows and this can't be done in the same query because we can't know the total number of rows of a particular query that is being paginated. 
+For that we do a query before to store the total number of rows or pages we have using the aggregate count. This can be done in two ways:
+```elixir
+import Ecto.Query
+query = from p in Product, select: count(p.id, :distinct)
+Repo.one(query)
+
+# OR 
+
+total = Repo.aggregate(Product, :count)
+```
+
+In the first example you can see that I use the `:distinct`, this is important because we don't know how the query will get the data and depending on the query we could get duplicated data.
+
+To finalize let's see an example of a module that executes a query a receive, as param, the page and the quantity of data we want it to return.
+
+```elixir
+```
